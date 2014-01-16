@@ -26,6 +26,8 @@ class FreshbooksInvoiceExporter
           discount = invoice["discount"].to_i > 0 ? invoice["discount"] : nil
           invoice["lines"]["line"].each do |line|
             next if line["unit_cost"].to_f == 0.0 # Freshbooks ends up creating lots of empty invoice line items
+            account_code = ["Web Hosting", "Static IP Address"].include?(line["name"]) ? 405 : 400
+            inventory_item_code = (account_code == 405) ? "Web Hosting" : "Web Development"
             csv << [
                       invoice["organization"],      # ContactName
                       nil,                          # EmailAddress
@@ -42,12 +44,12 @@ class FreshbooksInvoiceExporter
                       invoice_date,                 # InvoiceDate
                       due_date,                     # DueDate
                       nil,                          # Total
-                      nil,                          # InventoryItemCode
+                      inventory_item_code,          # InventoryItemCode
                       line["description"],          # Description
                       line["quantity"],             # Quantity
                       line["unit_cost"],            # UnitAmount
                       discount,                     # Discount
-                      400,                          # AccountCode
+                      account_code,                 # AccountCode
                       "Tax Exempt (0%)",            # TaxType
                       nil,                          # TaxAmount
                       nil,                          # TrackingName1
